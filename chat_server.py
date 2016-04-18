@@ -27,7 +27,7 @@ while True:
             new_user = User(client, address, uname)
             server.add_user(new_user)
             server.add_to_socket_list(client)
-            client.send(bytes("Welcome, " + new_user.username + "!\n", 'utf-8'))
+            client.send(bytes("Welcome, " + new_user.username + "! To exit just type 'exit'.\n", 'utf-8'))
             #client.send(bytes(new_user.username + ": ", 'utf-8'))
             message = uname + " HAS JOINED CHAT\n"
             server.transmit(client, message)
@@ -37,6 +37,12 @@ while True:
                 data = sock.recv(4096)
                 #socket contains data
                 if data:
+                    if data.decode('utf-8').strip('\n') == 'exit':
+                        user = next((x for x in server.USER_LIST if x.client == sock), None)
+                        server.SOCKET_LIST.remove(sock)
+                        sock.send(bytes("You have disconnected.", 'utf-8'))
+                        server.transmit(socket, user.username + " HAS DISCONNECTED\n")
+                        continue
                     user = next((x for x in server.USER_LIST if x.client == sock), None)
                     message = user.username + ": " + data.decode('utf-8')
                     server.transmit(sock, message)
@@ -46,7 +52,9 @@ while True:
                     if sock in server.SOCKET_LIST:
                         user = next((x for x in server.USER_LIST if x.client == sock), None)
                         server.SOCKET_LIST.remove(sock)
-                    server.transmit(socket, '\n' + user.username + " HAS DISCONNECTED\n")
+                        server.transmit(socket, user.username + " HAS DISCONNECTED\n")
+                    else:
+                        server.transmit(socket, 'USER HAS DISCONNECTED\n')
             except:
                 server.transmit(socket, 'USER HAS DISCONNECTED\n')
 
