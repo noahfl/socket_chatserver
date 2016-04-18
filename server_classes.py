@@ -11,10 +11,10 @@ class Server:
         self.queue = queue
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind(self.host, self.port)
+        self.socket.bind((self.host, self.port))
         self.socket.listen(queue)
         self.add_to_socket_list(self.socket)
-        print("Chat server started at " + host ":" + port)
+        print("Chat server started at " + str(host) + ":" + str(port))
 
     def add_to_socket_list(self, socket):
         self.SOCKET_LIST.append(socket)
@@ -27,7 +27,7 @@ class Server:
             if (sock != self.socket and socket != sock):
                 try:
                     sock.send(bytes(message, 'utf-8'))
-                except socket.error, e:
+                except socket.error as e:
                     sock.close()
                     self.SOCKET_LIST.riemove(sock)
 
