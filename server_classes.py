@@ -26,10 +26,12 @@ class Server:
         for sock in self.SOCKET_LIST:
             if (sock != self.socket and socket != sock):
                 try:
+                    user = next((x for x in self.USER_LIST if x.client == sock), None) 
+                    #sock.send(bytes(message + '\n' + user.username + ": ", 'utf-8'))
                     sock.send(bytes(message, 'utf-8'))
                 except socket.error as e:
                     sock.close()
-                    self.SOCKET_LIST.riemove(sock)
+                    self.SOCKET_LIST.remove(sock)
 
     def close(self):
         self.socket.close()
