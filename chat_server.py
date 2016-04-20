@@ -1,5 +1,6 @@
 import socket
 import select
+import app
 from server_classes import User, Server, Request
 
 host = ''
@@ -9,6 +10,15 @@ queue = 10
 server = Server(host, port, queue)
 
 while True:
+    try:
+        client, address = server.socket.accept()
+        req = client.recv(4096).decode('utf-8')
+        request = Request(req)
+        server.close()
+        app.run()
+        #app.hello_world()
+    except Exception as e:
+        print('failed')
 
     #use select module to find sockets that are ready to be read
     read, write, error = select.select(server.SOCKET_LIST, [], [], 0)
