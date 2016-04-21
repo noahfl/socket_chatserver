@@ -59,7 +59,10 @@ while True:
                     user = next((x for x in server.USER_LIST if x.client == sock), None)
                     decoded = data.decode('utf-8')
                     #to get nltk to work
-                    nltk.data.path.append('/scratch/nfl223/nltk')
+                    try:
+                        nltk.data.path.append('/scratch/nfl223/nltk')
+                    except Exception as e:
+                        print('directory not found')
                     words = nltk.word_tokenize(decoded)
                     tagged = nltk.pos_tag(words)
                     counter = 0
