@@ -1,6 +1,9 @@
 import socket
 
-
+'''
+Server class creates a server instance and keeps track of users
+and their corresponding sockets
+'''
 class Server:
     USER_LIST = []
     SOCKET_LIST = []
@@ -19,24 +22,31 @@ class Server:
     def add_to_socket_list(self, socket):
         self.SOCKET_LIST.append(socket)
 
+    #add new user
     def add_user(self, user):
         self.USER_LIST.append(user)
 
+    #broadcast message to everyone on the server
     def transmit(self, socket, message):
         for sock in self.SOCKET_LIST:
             if (sock != self.socket and socket != sock):
+                #send message to each user online
                 try:
                     user = next((x for x in self.USER_LIST if x.client == sock), None) 
-                    #sock.send(bytes(message + '\n' + user.username + ": ", 'utf-8'))
                     sock.send(bytes(message, 'utf-8'))
+                #remove socket if error occurs
                 except socket.error as e:
                     sock.close()
                     self.SOCKET_LIST.remove(sock)
-
+    #shuts down server
     def close(self):
         self.socket.close()
         print("Server closed.")
 
+'''
+User class keeps track of user information, including socket, address,
+and username
+'''
 class User:
 
     def __init__(self, client, address, username):
@@ -44,6 +54,10 @@ class User:
         self.address = address
         self.username = username
 
+'''
+Request class mainly used to determine whether or not a request
+is coming from a browser or from netcat
+'''
 class Request:
 
     def __init__(self, request):
