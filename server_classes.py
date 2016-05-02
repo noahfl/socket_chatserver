@@ -1,4 +1,5 @@
 import socket
+import time
 
 '''
 Server class creates a server instance and keeps track of users
@@ -7,6 +8,17 @@ and their corresponding sockets
 class Server:
     USER_LIST = []
     SOCKET_LIST = []
+    
+    #used to calculate time taken to transmit 
+    #a message to everyone on the server
+    def latency(old_f):
+        def new_f(*args):
+            start = time.time()
+            old_f(*args)
+            end = time.time()
+            latency = end - start
+            print('transmission latency: ' + str(latency) + ' seconds')
+        return new_f
 
     def __init__(self, host, port, queue):
         self.host = host
@@ -27,6 +39,7 @@ class Server:
         self.USER_LIST.append(user)
 
     #broadcast message to everyone on the server
+    @latency
     def transmit(self, socket, message):
         for sock in self.SOCKET_LIST:
             if (sock != self.socket and socket != sock):

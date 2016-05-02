@@ -9,6 +9,11 @@ Program that creates a netcat-based chat server. Users can chose
 a username and chat with other people on the server. The server
 also used NLTK to report how many nouns are used in each message
 sent via the server.
+
+ATTRIBUTIONS:
+    * Request class implementation inspired by what we did in class
+    * NLP usage inspired by NLTK 'textbook' on their site
+    * latency function inspired by decorator slides 
 '''
 
 host = ''
@@ -16,6 +21,27 @@ port = 5000
 queue = 10
 
 server = Server(host, port, queue)
+
+#analyzes message from user and concatenates
+#number of nouns onto the message
+def noun_analysis(old_f):
+    def new_f(*args):
+        words = nltk.word_tokenize(args[1])
+        tagged = nltk.pos_tag(words)
+        counter = 0
+        #iterate through tuples of tagged words
+        for i in tagged:                                                                                      #if the word is a singular or plural noun
+            if i[1] in ["NN", "NNS"]:
+                counter += 1
+        res = old_f(*args)
+        res += " (contains " + str(counter) + " nouns)\n"
+        return res
+    return new_f
+
+#creates message given username and chat text
+@noun_analysis
+def create_message(uname, decoded):
+    return uname + ": " + decoded.strip('\n')    
 
 #main loop
 while True:
@@ -81,17 +107,7 @@ while True:
                     #the username is equivalent to the current socket
                     user = next((x for x in server.USER_LIST if x.client == sock), None)
                     decoded = data.decode('utf-8')
-                    #separate and tag words in message
-                    words = nltk.word_tokenize(decoded)
-                    tagged = nltk.pos_tag(words)
-                    counter = 0
-                    #iterate through tuples of tagged words
-                    for i in tagged:
-                      #if the word is a singular or plural noun
-                      if i[1] in ["NN", "NNS"]:
-                          counter += 1
-                    # message = username + message + number of nouns
-                    message = user.username + ": " + decoded.strip('\n') + " (contains " + str(counter) + " nouns)\n"
+                    message = create_message(user.username, decoded)
                     server.transmit(sock, message)
                     #sock.send(bytes(user.username + ": ", 'utf-8'))
                 #no data
