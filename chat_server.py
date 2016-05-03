@@ -107,7 +107,9 @@ while True:
                     #the username is equivalent to the current socket
                     user = next((x for x in server.USER_LIST if x.client == sock), None)
                     decoded = data.decode('utf-8')
+                    print('made it here')
                     message = create_message(user.username, decoded)
+                    print('made it here too')
                     server.transmit(sock, message)
                     #sock.send(bytes(user.username + ": ", 'utf-8'))
                 #no data
