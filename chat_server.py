@@ -12,8 +12,9 @@ sent via the server.
 
 ATTRIBUTIONS:
     * Request class implementation inspired by what we did in class
-    * NLP usage inspired by NLTK 'textbook' on their site
+    * NLP usage inspired by NLTK 'textbook' on their site http://www.nltk.org/book/ch01.html
     * latency function inspired by decorator slides 
+    * chat server inspired by https://www.ibm.com/developerworks/linux/tutorials/l-pysocks/
 '''
 
 host = ''
@@ -89,6 +90,7 @@ while True:
             client.send(bytes("Welcome, " + new_user.username + "! To exit just type 'exit'.\n", 'utf-8'))
             message = uname + " HAS JOINED CHAT\n"
             server.transmit(client, message)
+            print(message)
         #client already exists
         else:
             try:
@@ -102,14 +104,13 @@ while True:
                         server.SOCKET_LIST.remove(sock)
                         sock.send(bytes("You have disconnected.", 'utf-8'))
                         server.transmit(socket, user.username + " HAS DISCONNECTED\n")
+                        print(user.username + " HAS DISCONNECTED")
                         continue
                     #get username based on whether or not the socket tied to
                     #the username is equivalent to the current socket
                     user = next((x for x in server.USER_LIST if x.client == sock), None)
                     decoded = data.decode('utf-8')
-                    print('made it here')
                     message = create_message(user.username, decoded)
-                    print('made it here too')
                     server.transmit(sock, message)
                     #sock.send(bytes(user.username + ": ", 'utf-8'))
                 #no data
@@ -120,9 +121,11 @@ while True:
                         user = next((x for x in server.USER_LIST if x.client == sock), None)
                         server.SOCKET_LIST.remove(sock)
                         server.transmit(socket, user.username + " HAS DISCONNECTED\n")
+                        print(user.username + " HAS DISCONNECTED") 
                     #tell everyone someone left if user cannot be determined
                     else:
                         server.transmit(socket, 'USER HAS DISCONNECTED\n')
+                        print("USER HAS DISCONNECTED")
             #something might have messed up with NLTK
             except:
                 server.transmit(socket, 'POSSIBLE NLTK ERROR\n')
